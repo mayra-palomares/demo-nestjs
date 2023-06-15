@@ -19,8 +19,6 @@ model User {
   firstName String?
   lastName  String?
   bookmarks Bookmark[]
-
-  @@map("users")
 }
 
 model Bookmark {
@@ -33,6 +31,4 @@ model Bookmark {
   userId      Int
 
   user User @relation(fields: [userId], references: [id])
-
-  @@map("bookmarks")
 }
