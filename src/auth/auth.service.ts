@@ -1,27 +1,27 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { AuthDto } from "./dto";
+import { LoginDto, SignUpDto } from "./dto";
 import * as argon from "argon2";
 import { User } from "@prisma/client";
 @Injectable({})
 export class AuthService {
 
-    constructor(private prisma: PrismaService) {}
+    constructor(private prisma: PrismaService) { }
 
-    async login(dto: AuthDto){
+    async login(dto: LoginDto) {
         const user: User = await this.prisma.user.findFirst({
             where: {
                 email: dto.email
             }
         });
 
-        if(!user){
+        if (!user) {
             throw new ForbiddenException('User not found');
         }
 
         const passwordMatches = await argon.verify(user.password, dto.password);
 
-        if(!passwordMatches){
+        if (!passwordMatches) {
             throw new ForbiddenException('Invalid password');
         }
 
@@ -29,25 +29,27 @@ export class AuthService {
 
         return user;
     }
-    
-    async signup(dto: AuthDto){
+
+    async signup(dto: SignUpDto) {
         const hash = await argon.hash(dto.password);
 
-        try{
+        try {
             const user: User = await this.prisma.user.create({
                 data: {
                     email: dto.email,
-                    password: hash
+                    password: hash,
+                    firstName: dto.firstName,
+                    lastName: dto.lastName
                 }
             })
 
             delete user.password;
             return user;
-        }catch(error){
-            if(error.code === 'P2002'){
+        } catch (error) {
+            if (error.code === 'P2002') {
                 throw new ForbiddenException('The email is already in use.');
             }
-            
+
             throw error;
         }
     }
