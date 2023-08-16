@@ -25,6 +25,7 @@ Project is created with:
 - NodeJS
 - NestJS
 - Prisma
+- Passport JWT
 
 ## Setup
 
